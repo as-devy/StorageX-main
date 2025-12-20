@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { DecodeHintType, BarcodeFormat } from '@zxing/library';
 import { X, Loader2, CheckCircle2, AlertCircle, ScanLine, Camera, Flashlight, FlashlightOff, Copy, RotateCcw, Info } from 'lucide-react';
@@ -18,6 +19,7 @@ declare global {
 }
 
 export default function ScanProductPage() {
+  const router = useRouter();
   const [barcodeResult, setBarcodeResult] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -86,8 +88,11 @@ export default function ScanProductPage() {
       setError(null);
       // Auto-stop scanning after finding a result to prevent accidental repeat scans
       handleStopScan();
+
+      // Redirect to product page
+      router.push(`/products/${barcodeText}`);
     }
-  }, [provideFeedback, handleStopScan]);
+  }, [provideFeedback, handleStopScan, router]);
 
   const toggleTorch = async () => {
     if (!scannerControlsRef.current || !hasTorch) return;
