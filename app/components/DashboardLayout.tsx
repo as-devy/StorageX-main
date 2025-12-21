@@ -25,8 +25,11 @@ import {
   BarChart3,
   Settings,
   ChevronDown,
-  Bell
+  Bell,
+  Menu,
+  X
 } from 'lucide-react';
+
 import ThemeToggle from './ThemeToggle';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
@@ -62,7 +65,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState<boolean>(false);
   const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [user, setUser] = useState<UserData | null>(null);
+
   const [isLoadingUser, setIsLoadingUser] = useState<boolean>(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const analyticsDropdownRef = useRef<HTMLDivElement>(null);
@@ -163,10 +168,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const handlePageChange = useCallback((page: PageType): void => {
     setCurrentPage(page);
     setSelectedItems([]);
+    setIsMobileMenuOpen(false); // Close mobile menu on page change
     if (onPageChange) {
       onPageChange(page);
     }
   }, [onPageChange]);
+
 
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: <Home className="w-4 h-4" /> },
@@ -302,90 +309,94 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <ErrorBoundary>
         <div className="flex flex-col h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
           {/* Top Navigation Bar */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 transition-colors duration-300">
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 lg:py-3 transition-colors duration-300 sticky top-0 z-40">
             <div className="flex items-center justify-between">
-              {/* Left Side - User Profile */}
-              <div className="flex items-center space-x-3">
-                {/* Avatar Dropdown */}
+              {/* Left Side - User & Desktop Nav */}
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                {/* Mobile Menu Toggle */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+
+                {/* Avatar Dropdown (Compact on Desktop) */}
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)}
                     className="flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-1 transition-colors"
                     disabled={isLoadingUser}
                   >
-                    <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold text-xs">
+                    <div className="w-8 h-8 lg:w-7 lg:h-7 bg-brand-soft dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-main dark:text-brand-300 font-bold text-xs lg:text-[10px] border border-brand-100 dark:border-brand-800">
                       {isLoadingUser ? '...' : getUserInitials(user)}
                     </div>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                    <span className="hidden sm:inline font-semibold text-gray-900 dark:text-gray-100 text-sm">
                       {isLoadingUser ? 'Loading...' : getUserDisplayName(user)}
                     </span>
-                    <ChevronDown className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                    <ChevronDown className="hidden sm:block w-3 h-3 text-gray-400 dark:text-gray-500" />
                   </button>
 
                   {/* Dropdown Menu */}
                   {isSettingsDropdownOpen && !isLoadingUser && user && (
-                    <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 transition-colors duration-300">
-                      <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700">
-                        <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                    <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-50 overflow-hidden transform origin-top-left transition-all duration-200 animate-in fade-in zoom-in-95">
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
                           {getUserDisplayName(user)}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {user.email}
                         </div>
-                        {user.company_name || user.user_metadata?.company_name ? (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                            {user.company_name || user.user_metadata?.company_name}
-                          </div>
-                        ) : null}
                       </div>
-                      <button
-                        onClick={() => {
-                          handlePageChange('settings');
-                          setIsSettingsDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 transition-colors"
-                      >
-                        <Settings className="w-3 h-3" />
-                        <span>Settings</span>
-                      </button>
-                      <div className="px-3 py-2 border-t border-gray-100 dark:border-gray-700">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-700 dark:text-gray-300">Theme</span>
+                      <div className="p-1">
+                        <button
+                          onClick={() => {
+                            handlePageChange('settings');
+                            setIsSettingsDropdownOpen(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-soft dark:hover:bg-brand-900/20 hover:text-brand-main dark:hover:text-brand-300 flex items-center space-x-3 rounded-lg transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span className="font-medium">Account Settings</span>
+                        </button>
+                        <div className="px-3 py-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Dark Mode</span>
                           <ThemeToggle size="sm" />
                         </div>
                       </div>
-                      <div className="border-t border-gray-100 dark:border-gray-700 mt-1">
+                      <div className="border-t border-gray-100 dark:border-gray-700 mt-1 p-1">
                         <button
                           onClick={() => {
-                            // Clear auth data
                             localStorage.removeItem('auth_token');
                             localStorage.removeItem('user_data');
-                            // Redirect to home
                             router.push('/');
                           }}
-                          className="w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-3 rounded-lg transition-colors"
                         >
-                          Sign out
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          <span className="font-medium">Sign out</span>
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Navigation Links */}
-                <nav className="flex items-center space-x-1 ml-6">
+                {/* Desktop Navigation Links */}
+                <nav className="hidden lg:flex items-center space-x-1 ml-4 xl:ml-6">
                   {navItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handlePageChange(item.id as PageType)}
-                      className={`flex items-center space-x-1 px-3 py-2 text-xs font-medium transition-all duration-200 rounded-lg ${currentPage === item.id
-                        ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-main dark:text-brand-300 border border-brand-200 dark:border-brand-800 shadow-sm'
+                      className={`flex items-center space-x-2 px-3 py-2 text-sm font-semibold transition-all duration-200 rounded-lg group ${currentPage === item.id
+                        ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300 shadow-sm border border-brand-100/50 dark:border-brand-800/50'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                     >
-                      <div className={`transition-colors ${currentPage === item.id ? 'text-brand-main' : 'text-gray-500'
+                      <div className={`transition-colors duration-200 ${currentPage === item.id ? 'text-brand-main' : 'text-gray-400 group-hover:text-gray-600'
                         }`}>
-                        {item.icon}
+                        {React.cloneElement(item.icon as React.ReactElement, { className: 'w-4 h-4' })}
                       </div>
                       <span>{item.label}</span>
                     </button>
@@ -395,50 +406,46 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   <div className="relative" ref={analyticsDropdownRef}>
                     <button
                       onClick={() => setIsAnalyticsDropdownOpen(!isAnalyticsDropdownOpen)}
-                      className={`flex items-center space-x-1 px-3 py-2 text-xs font-medium transition-all duration-200 rounded-lg ${currentPage === 'analytics' || currentPage === 'ai-insights'
-                        ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-main dark:text-brand-300 border border-brand-200 dark:border-brand-800 shadow-sm'
+                      className={`flex items-center space-x-2 px-3 py-2 text-sm font-semibold transition-all duration-200 rounded-lg group ${currentPage === 'analytics' || currentPage === 'ai-insights'
+                        ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300 shadow-sm border border-brand-100/50 dark:border-brand-800/50'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                     >
-                      <div className={`transition-colors ${currentPage === 'analytics' || currentPage === 'ai-insights' ? 'text-brand-main' : 'text-gray-500'
-                        }`}>
-                        <BarChart3 className="w-4 h-4" />
-                      </div>
+                      <BarChart3 className={`w-4 h-4 transition-colors ${currentPage === 'analytics' || currentPage === 'ai-insights' ? 'text-brand-main' : 'text-gray-400 group-hover:text-gray-600'
+                        }`} />
                       <span>Analytics</span>
-                      <ChevronDown className={`w-3 h-3 transition-colors ${currentPage === 'analytics' || currentPage === 'ai-insights' ? 'text-brand-500' : 'text-gray-400'
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAnalyticsDropdownOpen ? 'rotate-180' : ''} ${currentPage === 'analytics' || currentPage === 'ai-insights' ? 'text-brand-main' : 'text-gray-400'
                         }`} />
                     </button>
 
                     {/* Dropdown Menu */}
                     {isAnalyticsDropdownOpen && (
-                      <div className="absolute left-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 transition-colors duration-300">
+                      <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-50 animate-in fade-in zoom-in-95">
                         <button
                           onClick={() => {
                             handlePageChange('analytics');
                             setIsAnalyticsDropdownOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-2 text-xs flex items-center space-x-2 transition-colors ${currentPage === 'analytics'
-                            ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-main dark:text-brand-300'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          className={`w-full text-left px-3 py-2.5 text-sm flex items-center space-x-3 transition-colors ${currentPage === 'analytics'
+                            ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                         >
-                          <BarChart3 className={`w-3 h-3 ${currentPage === 'analytics' ? 'text-brand-main dark:text-brand-300' : 'text-gray-500 dark:text-gray-400'
-                            }`} />
-                          <span>Analytics</span>
+                          <BarChart3 className="w-4 h-4" />
+                          <span className="font-medium">Analytics</span>
                         </button>
                         <button
                           onClick={() => {
                             handlePageChange('ai-insights');
                             setIsAnalyticsDropdownOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-2 text-xs flex items-center space-x-2 transition-colors ${currentPage === 'ai-insights'
-                            ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-main dark:text-brand-300'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          className={`w-full text-left px-3 py-2.5 text-sm flex items-center space-x-3 transition-colors ${currentPage === 'ai-insights'
+                            ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                         >
-                          <BarChart3 className={`w-3 h-3 ${currentPage === 'ai-insights' ? 'text-brand-main dark:text-brand-300' : 'text-gray-500 dark:text-gray-400'
-                            }`} />
-                          <span>AI Insights</span>
+                          <Zap className="w-4 h-4" />
+                          <span className="font-medium">AI Insights</span>
                         </button>
                       </div>
                     )}
@@ -447,27 +454,109 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </div>
 
               {/* Right Side - Search and Actions */}
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 dark:text-gray-500" />
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                <div className="relative group hidden sm:block">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-focus-within:text-brand-main transition-colors" />
                   <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search anything..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-7 pr-3 py-1.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-transparent w-48 transition-colors"
+                    className="pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-main/20 focus:border-brand-main w-40 xl:w-60 transition-all placeholder:text-gray-400"
                   />
                 </div>
                 <button
-                  onClick={() => alert('You have 3 new notifications')}
-                  className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors relative"
+                  onClick={() => alert('Notifications coming soon!')}
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all relative group"
                 >
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                  <Bell className="w-5 h-5 group-hover:scale-110 duration-200" />
+                  <span className="absolute top-1.5 right-1.5 bg-brand-main border-2 border-white dark:border-gray-800 text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center">3</span>
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Mobile Drawer Overlay */}
+          {isMobileMenuOpen && (
+            <div className="fixed inset-0 z-[60] lg:hidden">
+              {/* Backdrop */}
+              <div
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-in fade-in"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              {/* Drawer Content */}
+              <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+                <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-brand-main rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                      <Store className="w-5 h-5" />
+                    </div>
+                    <span className="font-bold text-gray-900 dark:text-gray-100 text-lg tracking-tight">StorageX</span>
+                  </div>
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                  <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Main Menu</div>
+                  {navItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handlePageChange(item.id as PageType)}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${currentPage === item.id
+                        ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300 font-bold'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                        }`}
+                    >
+                      <div className={currentPage === item.id ? 'text-brand-main' : 'text-gray-400'}>
+                        {item.icon}
+                      </div>
+                      <span className="text-sm">{item.label}</span>
+                    </button>
+                  ))}
+
+                  <div className="pt-4 px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Analytics</div>
+                  <button
+                    onClick={() => handlePageChange('analytics')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${currentPage === 'analytics'
+                      ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300 font-bold'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                  >
+                    <BarChart3 className={`w-4 h-4 ${currentPage === 'analytics' ? 'text-brand-main' : 'text-gray-400'}`} />
+                    <span className="text-sm">Standard Analytics</span>
+                  </button>
+                  <button
+                    onClick={() => handlePageChange('ai-insights')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${currentPage === 'ai-insights'
+                      ? 'bg-brand-soft text-brand-main dark:bg-brand-900/20 dark:text-brand-300 font-bold'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                  >
+                    <Zap className={`w-4 h-4 ${currentPage === 'ai-insights' ? 'text-brand-main' : 'text-gray-400'}`} />
+                    <span className="text-sm">AI Powered Insights</span>
+                  </button>
+                </div>
+
+                <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 flex items-center space-x-3 border border-gray-100 dark:border-gray-700">
+                    <div className="w-10 h-10 bg-brand-main rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                      {getUserInitials(user)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{getUserDisplayName(user)}</div>
+                      <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{user?.email}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
 
           {/* Main Content Area */}
           <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
