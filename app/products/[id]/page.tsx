@@ -12,7 +12,9 @@ import {
   Tag,
   Boxes
 } from 'lucide-react';
+import AuthShield from '../../components/AuthShield';
 // import Barcode from 'react-barcode';
+
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -175,148 +177,151 @@ const ProductDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 dark:bg-gray-950">
-      <div className="mx-auto flex max-w-5xl flex-col space-y-6">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </button>
-          <Link
-            href="/"
-            className="text-sm font-medium text-brand-main hover:text-brand-third"
-          >
-            Go to dashboard
-          </Link>
-        </div>
+    <AuthShield>
+      <div className="min-h-screen bg-gray-50 py-10 px-4 dark:bg-gray-950">
+        <div className="mx-auto flex max-w-5xl flex-col space-y-6">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </button>
+            <Link
+              href="/"
+              className="text-sm font-medium text-brand-main hover:text-brand-third"
+            >
+              Go to dashboard
+            </Link>
+          </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          {loading && (
-            <div className="flex h-60 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-brand-main" />
-            </div>
-          )}
-
-          {!loading && error && (
-            <div className="p-10 text-center">
-              <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-500" />
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{error}</p>
-              <button
-                type="button"
-                onClick={() => router.refresh()}
-                className="mt-4 inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-              >
-                Retry
-              </button>
-            </div>
-          )}
-
-          {!loading && !error && product && (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              <div className="flex flex-col gap-4 p-8 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-2xl dark:bg-gray-800">
-                    {product.image}
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
-                  </div>
-                </div>
-                {renderStatusBadge(product.status)}
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            {loading && (
+              <div className="flex h-60 items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-brand-main" />
               </div>
+            )}
 
-              <div className="grid gap-6 p-8 md:grid-cols-2">
-                <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
-                  <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-                    <DollarSign className="h-4 w-4" />
-                    <span className="text-xs uppercase tracking-wide">Pricing</span>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Price</div>
-                    <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                      {currencyFormatter.format(product.price)}
+            {!loading && error && (
+              <div className="p-10 text-center">
+                <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-500" />
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{error}</p>
+                <button
+                  type="button"
+                  onClick={() => router.refresh()}
+                  className="mt-4 inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {!loading && !error && product && (
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                <div className="flex flex-col gap-4 p-8 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-2xl dark:bg-gray-800">
+                      {product.image}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Cost</div>
-                    <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                      {currencyFormatter.format(product.cost)}
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h1>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">SKU: {product.sku}</p>
+                    </div>
+                  </div>
+                  {renderStatusBadge(product.status)}
+                </div>
+
+                <div className="grid gap-6 p-8 md:grid-cols-2">
+                  <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
+                    <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
+                      <DollarSign className="h-4 w-4" />
+                      <span className="text-xs uppercase tracking-wide">Pricing</span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Price</div>
+                      <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                        {currencyFormatter.format(product.price)}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">Cost</div>
+                      <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        {currencyFormatter.format(product.cost)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
+                    <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
+                      <Boxes className="h-4 w-4" />
+                      <span className="text-xs uppercase tracking-wide">Inventory</span>
+                    </div>
+                    <div className="mt-4 space-y-1">
+                      <div className="text-4xl font-semibold text-gray-900 dark:text-gray-100">
+                        {product.stock} <span className="text-lg font-medium text-gray-500">units</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Threshold: {product.lowStockThreshold} units
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Category: {product.category}
+                      </p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
-                  <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-                    <Boxes className="h-4 w-4" />
-                    <span className="text-xs uppercase tracking-wide">Inventory</span>
-                  </div>
-                  <div className="mt-4 space-y-1">
-                    <div className="text-4xl font-semibold text-gray-900 dark:text-gray-100">
-                      {product.stock} <span className="text-lg font-medium text-gray-500">units</span>
+
+                <div className="grid gap-6 p-8 lg:grid-cols-3">
+                  <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800 lg:col-span-2">
+                    <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
+                      <Package className="h-4 w-4" />
+                      <span className="text-xs uppercase tracking-wide">Description</span>
                     </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Threshold: {product.lowStockThreshold} units
+                    <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
+                      {product.description || 'No description provided for this product yet.'}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Category: {product.category}
+                    <p className="mt-4 text-xs text-gray-400">
+                      Last updated: {product.lastUpdated ? new Date(product.lastUpdated).toLocaleString() : 'N/A'}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              <div className="grid gap-6 p-8 lg:grid-cols-3">
-                <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800 lg:col-span-2">
-                  <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-                    <Package className="h-4 w-4" />
-                    <span className="text-xs uppercase tracking-wide">Description</span>
-                  </div>
-                  <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
-                    {product.description || 'No description provided for this product yet.'}
-                  </p>
-                  <p className="mt-4 text-xs text-gray-400">
-                    Last updated: {product.lastUpdated ? new Date(product.lastUpdated).toLocaleString() : 'N/A'}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
-                  <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
-                    <Tag className="h-4 w-4" />
-                    <span className="text-xs uppercase tracking-wide">Scan & Share</span>
-                  </div>
-                  <div className="mt-4 flex flex-col items-center justify-center space-y-3">
-                    {productViewUrl ? (
-                      <>
-                        {/*<Barcode
-                          value={productViewUrl}
-                          height={70}
-                          width={1.2}
-                          displayValue={false}
-                          background="transparent"
-                          lineColor="#111827"
-                        />*/}
-                        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-                          Scan this barcode to open the product page.
-                        </p>
-                        <a
-                          href={productViewUrl}
-                          className="text-xs font-medium text-brand-main hover:text-brand-third"
-                        >
-                          {productViewUrl}
-                        </a>
-                      </>
-                    ) : (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Generating barcode...</p>
-                    )}
+                  <div className="rounded-2xl border border-gray-100 p-6 dark:border-gray-800">
+                    <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
+                      <Tag className="h-4 w-4" />
+                      <span className="text-xs uppercase tracking-wide">Scan & Share</span>
+                    </div>
+                    <div className="mt-4 flex flex-col items-center justify-center space-y-3">
+                      {productViewUrl ? (
+                        <>
+                          {/*<Barcode
+                            value={productViewUrl}
+                            height={70}
+                            width={1.2}
+                            displayValue={false}
+                            background="transparent"
+                            lineColor="#111827"
+                          />*/}
+                          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                            Scan this barcode to open the product page.
+                          </p>
+                          <a
+                            href={productViewUrl}
+                            className="text-xs font-medium text-brand-main hover:text-brand-third"
+                          >
+                            {productViewUrl}
+                          </a>
+                        </>
+                      ) : (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Generating barcode...</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </AuthShield>
   );
+
 };
 
 export default ProductDetailPage;
