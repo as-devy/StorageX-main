@@ -27,7 +27,8 @@ import {
   ChevronDown,
   Bell,
   Menu,
-  X
+  X,
+  Zap
 } from 'lucide-react';
 
 import ThemeToggle from './ThemeToggle';
