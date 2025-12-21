@@ -15,8 +15,10 @@ import {
   Search,
   Bell,
   ShoppingCart,
-  Store
+  Store,
+  Scan
 } from 'lucide-react';
+
 import { PageType } from '../types';
 import { stats, lowStockItems, recentActivity, stores } from '../data/mockData';
 
@@ -76,66 +78,79 @@ const DashboardContent: React.FC<DashboardContentProps> = memo(({
       <div className="p-6">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">All Stores Overview</h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">All Stores Overview</h1>
+            <div className="flex items-center space-x-3 lg:space-x-4">
+              <div className="hidden sm:flex items-center space-x-2 text-gray-600 dark:text-gray-400">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm">Jan 20, 2023 - Feb 09, 2023</span>
+                <span className="text-xs lg:text-sm whitespace-nowrap">Jan 20, 2023 - Feb 09, 2023</span>
               </div>
               <button
                 onClick={() => alert('Downloading report...')}
-                className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors flex items-center space-x-2"
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center space-x-2 text-sm font-medium shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Download</span>
+                <span>Download Report</span>
               </button>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
+
+          {/* Navigation Tabs & Actions */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl overflow-x-auto no-scrollbar w-full lg:w-fit">
+              <button
+                onClick={() => handleTabChange('overview')}
+                className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'overview'
+                  ? 'bg-white dark:bg-gray-700 text-brand-main dark:text-brand-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => handleTabChange('analytics')}
+                className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'analytics'
+                  ? 'bg-white dark:bg-gray-700 text-brand-main dark:text-brand-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+              >
+                Analytics
+              </button>
+              <button
+                onClick={() => handleTabChange('reports')}
+                className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'reports'
+                  ? 'bg-white dark:bg-gray-700 text-brand-main dark:text-brand-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+              >
+                Reports
+              </button>
+              <button
+                onClick={() => handleTabChange('notifications')}
+                className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'notifications'
+                  ? 'bg-white dark:bg-gray-700 text-brand-main dark:text-brand-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+              >
+                Notifications
+              </button>
+            </div>
+
             <button
-              onClick={() => handleTabChange('overview')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'overview'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
+              onClick={() => router.push('/scanProduct')}
+              className="group relative flex items-center justify-center space-x-2 px-6 py-2.5 bg-brand-main hover:bg-brand-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-brand-500/20 active:scale-95 overflow-hidden w-full lg:w-auto"
             >
-              Overview
-            </button>
-            <button
-              onClick={() => handleTabChange('analytics')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'analytics'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-            >
-              Analytics
-            </button>
-            <button
-              onClick={() => handleTabChange('reports')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'reports'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-            >
-              Reports
-            </button>
-            <button
-              onClick={() => handleTabChange('notifications')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'notifications'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                }`}
-            >
-              Notifications
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              <Scan className="w-5 h-5" />
+              <span className="whitespace-nowrap">SCAN PRODUCT BARCODE</span>
             </button>
           </div>
+
         </div>
 
         {/* Tab Content */}
